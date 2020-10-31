@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlertRabbit.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">job4j_grabber</a> &gt; <a href="index.source.html" class="el_package">ru.job4j.quartz</a> &gt; <span class="el_source">AlertRabbit.java</span></div><h1>AlertRabbit.java</h1><pre class="source lang-java linenums">package ru.job4j.quartz;
+
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
+
+import java.io.InputStream;
+import java.util.Properties;
+
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerBuilder.newTrigger;
+
+<span class="nc" id="L13">public class AlertRabbit {</span>
+
+    public static void main(String[] args) {
+        int interval;
+<span class="nc" id="L17">        try (InputStream in = AlertRabbit.class.getClassLoader().getResourceAsStream(&quot;rabbit.properties&quot;)) {</span>
+<span class="nc" id="L18">            Properties config = new Properties();</span>
+<span class="nc" id="L19">            config.load(in);</span>
+<span class="nc" id="L20">            interval = Integer.parseInt(config.getProperty(&quot;rabbit.interval&quot;));</span>
+<span class="nc" id="L21">        } catch (Exception e) {</span>
+<span class="nc" id="L22">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L23">        }</span>
+        try {
+<span class="nc" id="L25">            Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();</span>
+<span class="nc" id="L26">            scheduler.start();</span>
+<span class="nc" id="L27">            JobDetail job = newJob(Rabbit.class).build();</span>
+<span class="nc" id="L28">            SimpleScheduleBuilder times = simpleSchedule()</span>
+<span class="nc" id="L29">                    .withIntervalInSeconds(interval)</span>
+<span class="nc" id="L30">                    .repeatForever();</span>
+<span class="nc" id="L31">            Trigger trigger = newTrigger()</span>
+<span class="nc" id="L32">                    .startNow()</span>
+<span class="nc" id="L33">                    .withSchedule(times)</span>
+<span class="nc" id="L34">                    .build();</span>
+<span class="nc" id="L35">            scheduler.scheduleJob(job, trigger);</span>
+<span class="nc" id="L36">        } catch (SchedulerException se) {</span>
+<span class="nc" id="L37">            se.printStackTrace();</span>
+<span class="nc" id="L38">        }</span>
+<span class="nc" id="L39">    }</span>
+
+<span class="nc" id="L41">    public static class Rabbit implements Job {</span>
+        @Override
+        public void execute(JobExecutionContext context) throws JobExecutionException {
+<span class="nc" id="L44">            System.out.println(&quot;Rabbit runs here ...&quot;);</span>
+<span class="nc" id="L45">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
